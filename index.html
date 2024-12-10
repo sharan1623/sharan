@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Sort Visualization </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 60%;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-left: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .visualization {
+            margin-top: 30px;
+            position: relative;
+        }
+
+        #arrayContainer {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 5px;
+            height: 250px;
+            position: relative;
+        }
+
+        .box {
+            width: 50px;
+            height: 50px;
+            background-color: #007bff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            transition: all 0.5s ease;
+            border-radius: 5px;
+        }
+
+        .box.active {
+            background-color: #ff5733;
+        }
+
+        .box.sorted {
+            background-color: #28a745;
+        }
+
+        .box.rainbow {
+            animation: rainbow 2s infinite;
+        }
+
+        @keyframes rainbow {
+            0% { background-color: #ff0000; }
+            14% { background-color: #ff7f00; }
+            28% { background-color: #ffff00; }
+            42% { background-color: #00ff00; }
+            57% { background-color: #0000ff; }
+            71% { background-color: #4b0082; }
+            85% { background-color: #9400d3; }
+            100% { background-color: #ff0000; }
+        }
+
+        .sorted-output {
+            margin-top: 20px;
+        }
+
+        #sortedArray {
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bubble Sort Visualization </h1>
+        <div class="input-section">
+            <input type="text" id="inputArray" placeholder="Enter numbers separated by commas (e.g., 5, 3, 8)" />
+            <button onclick="startBubbleSort()">Start Sorting</button>
+        </div>
+        <div class="visualization">
+            <div id="arrayContainer"></div>
+        </div>
+        <div class="sorted-output">
+            <div id="sortedArray"></div>
+        </div>
+    </div>
+
+    <script>
+        let array = [];
+        let interval;
+
+        function renderArray() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = ''; // Clear the container before rendering
+
+            array.forEach((num) => {
+                const box = document.createElement('div');
+                box.classList.add('box');
+                box.textContent = num;
+                container.appendChild(box);
+            });
+        }
+
+        function startBubbleSort() {
+            const input = document.getElementById('inputArray').value;
+            const inputArray = input.split(',').map(num => parseInt(num.trim()));
+
+            // Ensure all inputs are numbers
+            if (!inputArray.every(num => !isNaN(num))) {
+                alert("Please enter valid numbers separated by commas.");
+                return;
+            }
+
+            array = inputArray;
+            renderArray();
+            bubbleSort();
+        }
+
+        function bubbleSort() {
+            let n = array.length;
+            let i = 0;
+
+            interval = setInterval(() => {
+                let swapped = false;
+
+                for (let j = 0; j < n - i - 1; j++) {
+                    const boxes = document.querySelectorAll('.box');
+                    boxes[j].classList.add('active');
+                    boxes[j + 1].classList.add('active');
+
+                    // Perform the swap if necessary
+                    if (array[j] > array[j + 1]) {
+                        [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                        swapped = true;
+                    }
+
+                    // Remove active state after comparison
+                    boxes[j].classList.remove('active');
+                    boxes[j + 1].classList.remove('active');
+                }
+
+                // Render the array with updated values
+                renderArray();
+
+                // Mark the last element as sorted
+                const lastBox = document.querySelectorAll('.box')[n - i - 1];
+                lastBox.classList.add('sorted');
+
+                if (!swapped) {
+                    clearInterval(interval); // If no elements were swapped, sorting is complete
+                    displaySortedArray();
+                }
+
+                i++;
+                if (i >= n) {
+                    clearInterval(interval); // If all iterations are done, stop the interval
+                    applyRainbowEffect(); // Apply the rainbow effect after sorting
+                }
+            }, 1000); // Set the interval to update every 1 second
+        }
+
+        function displaySortedArray() {
+            const sortedArrayContainer = document.getElementById('sortedArray');
+            sortedArrayContainer.textContent = `Sorted Array: [${array.join(', ')}]`;
+        }
+
+        function applyRainbowEffect() {
+            const boxes = document.querySelectorAll('.box');
+            boxes.forEach((box) => {
+                box.classList.add('rainbow'); // Add the rainbow animation class to each box
+            });
+        }
+    </script>
+</body>
+</html>
